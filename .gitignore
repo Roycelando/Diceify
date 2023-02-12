@@ -1,0 +1,13 @@
+*.sln
+*.vcxproj
+*.user
+*.dill
+*.tif
+GL/
+FreeImage/
+Debug/
+*]
+FreeImaged*
+freeglut*
+.vs/
+*.filters
