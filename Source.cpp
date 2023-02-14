@@ -20,6 +20,7 @@
 #include <freeglut.h>
 #include <FreeImage.h>
 #include <iostream>
+void drawDice(int i, int j, GLubyte colour);
 
 //the pixel structure
 typedef struct {
@@ -39,9 +40,10 @@ typedef struct {
 } dice;
 
 glob global;
+const float PI = 3.14159265358979323846;
 
 enum { MENU_FILTER, MENU_SAVE, MENU_TRIANGLE, MENU_QUIT };
-
+	dice die; 
 //read image
 pixel* read_img(char* name, int* width, int* height) {
 	FIBITMAP* image;
@@ -110,7 +112,6 @@ void display_image(void)
   	glClear(GL_COLOR_BUFFER_BIT);
     //glDrawPixels(global.w, global.h, GL_RGB, GL_UNSIGNED_BYTE, (GLubyte*)global.data);
 
-	dice die; 
 	die.s = 20;
 	die.w = global.w / die.s;
 	die.h = global.h / die.s;
@@ -167,52 +168,71 @@ void display_image(void)
 				}
 
 			}
-			//std::cout << "red: " << red << " green: " << green << " blue: " << blue << std::endl;
+			avgColour / (die.s * die.s);
+
+			std::cout << "average colour: " << (double)avgColour << std::endl;
 			glColor3f(avgColour/255.0, avgColour/255.0, avgColour/255.0);
-			 glBegin(GL_POLYGON);
-		     glVertex2i(j,i);
-			 //glColor3f(red/255.0, green/255.0, blue/255.0);
-		     glVertex2i(j+die.s,i);
-		     //glColor3f(red/255.0, green/255.0, blue/255.0);
-	         glVertex2i(j+die.s,i+die.s);
-			 //glColor3f(red/255.0, green/255.0, blue/255.0);
-             glVertex2i(j,i+die.s);
+			drawDice(i,j,avgColour);
 
-			glEnd();
-			//glFlush();
-
-
-			/*
-			
-			*/
-
-		   	//avgColour = avgColour /(GLbyte)(die.s * die.s);
-			//std::cout <<"average colour: " << (int)avgColour << std::endl;
-			     
+		   				     
 
 			
-			//avgColour = 0;
-
-		
-		
-		
-            	
-           
+			avgColour = 0;
 		}
-			
-         
-	//glReadPixels(0, 0, global.w, global.h, GL_RGB, GL_UNSIGNED_BYTE, (GLubyte*)global.data);
-
 
    }
 
 
-
- // glDrawPixels(global.w, global.h, GL_RGB, GL_UNSIGNED_BYTE, (GLubyte*)global.data);
-   glFlush();
-
-  std::cout<< "Done" << std::endl;
+    std::cout<< "Done" << std::endl;
+	glFlush();
 }//display_image()
+
+void drawDice(int i, int j, GLubyte colour ) {
+	int value =1;
+	int radius = (die.s / 2.0) * 0.30;
+	glColor3f(0,0,0);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+ 	 glBegin(GL_POLYGON);
+		     glVertex2i(j,i);
+		     glVertex2i(j+die.s,i);
+	         glVertex2i(j+die.s,i+die.s);
+             glVertex2i(j,i+die.s);
+		glEnd();
+
+	switch (value) {
+		default: {
+		glColor3f(0,0,0);
+        glBegin(GL_POLYGON);
+				  for (int i = 0; i < 360; i++) {
+					  double theta = i * (PI / 180); // calculating the next angle
+					  glVertex2f(radius * cos(theta) + (die.s/2.0), radius * sin(theta) + (die.s/2.0)); // gets then points of the circle
+				  }
+		glEnd();
+			break;
+
+		}
+		case 2: {
+
+			break;
+
+		}case 3: {
+
+			break;
+
+		}case 4: {
+			break;
+
+		}case 5: {
+			break;
+
+		}case 6: {
+
+			break;
+		}
+		   
+	}
+
+}
 
  // Read the screen image back to the data buffer after drawing to it
 void draw_triangle(void)
@@ -342,7 +362,7 @@ int main(int argc, char** argv)
 	glutDisplayFunc(display_image);
 	gluOrtho2D(0, global.w, 0, global.h);
 
-	glClearColor(255.0,255.0,255.0,1.0);
+	glClearColor(255.0, 255.0, 255.0, 1.0);
 	glutKeyboardFunc(keyboard);
 	glMatrixMode(GL_PROJECTION);
 
