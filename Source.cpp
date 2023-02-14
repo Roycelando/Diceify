@@ -35,6 +35,7 @@ typedef struct {
 typedef struct {
 	int number;
 	int s;
+	int w, h;
 } dice;
 
 glob global;
@@ -61,7 +62,7 @@ pixel* read_img(char* name, int* width, int* height) {
 		for (i = 0; i < (*height); i++) {
 			for (j = 0; j < (*width); j++) {
 				FreeImage_GetPixelColor(image, j, i, &aPixel);
-				GLubyte avg = ((aPixel.rgbRed) + (aPixel.rgbGreen) + (aPixel.rgbRed))/ 3.0;
+				GLubyte avg = ((aPixel.rgbRed) + (aPixel.rgbGreen) + (aPixel.rgbRed))/ (GLubyte)3.0;
 
 				data[pnum].r = avg;
 				data[pnum].g = avg;
@@ -73,6 +74,7 @@ pixel* read_img(char* name, int* width, int* height) {
 	}
 	return NULL;
 }//read_img
+
 
  //write_img
 void write_img(char* name, pixel* data, int width, int height) {
@@ -103,28 +105,113 @@ void write_img(char* name, pixel* data, int width, int height) {
 
  /*draw the image - it is already in the format openGL requires for glDrawPixels*/
 void display_image(void)
-{
-	dice die; 
-	die.s = 5;
 
-	for (int i = 0; i < global.h-die.s; i+=die.s) {
-		for (int j = 0; j < global.w-die.s; j+=die.s) {
-			for (int y = 0; y < die.s; y++) {
-				for (int x = 0; x < die.s; y++) {
+{
+  	glClear(GL_COLOR_BUFFER_BIT);
+    //glDrawPixels(global.w, global.h, GL_RGB, GL_UNSIGNED_BYTE, (GLubyte*)global.data);
+
+	dice die; 
+	die.s = 20;
+	die.w = global.w / die.s;
+	die.h = global.h / die.s;
+
+	global.w = global.w - (global.w%die.s);
+	global.h = global.h - (global.h%die.s);
+
+
+	std::cout << "dice side: " << die.s << " dice per row: " << die.h << " diece per row: " << die.w << std::endl;
+
+
+	GLubyte avgColour =0;
+
+/*
+	pixel test;
+	test.r = 0;
+	test.g = 255;
+	test.b = 0;
+
+*/
+
+
+
+
+
+	for (int i = 0; i <= global.h-die.s; i+=die.s) {
+		for (int j = 0; j <= global.w-die.s; j+=die.s) {
+
+			int red = rand() % 255;
+			int green = rand() % 255;
+			int blue = rand() % 255;
+			/* testing to see if  I can colour the verticies of each quadrant
+                      global.data[((i * global.w)) + j].r =(GLubyte)255;
+	                  global.data[((i * global.w)) + j].g =(GLubyte)0;
+                      global.data[((i * global.w)) + j].b =(GLubyte)0;
+
+			*/
+
+                     			
+			for (int y = 0; y <= die.s; y++) {
+				for (int x = 0; x <= die.s; x++) {
+
+                    avgColour += global.data[(((i + y) * global.w)) + (j + x)].r;
+
+					/* testing to see if I can colour each qudarant
+					global.data[(((i + y) * global.w)) + (j + x)].r = test.r;
+					global.data[(((i + y) * global.w)) + (j + x)].g = test.g;
+					global.data[(((i + y) * global.w)) + (j + x)].b = test.b;
+	
+					*/
+				
+
 
 				}
 
 			}
+			//std::cout << "red: " << red << " green: " << green << " blue: " << blue << std::endl;
+			glColor3f(avgColour/255.0, avgColour/255.0, avgColour/255.0);
+			 glBegin(GL_POLYGON);
+		     glVertex2i(j,i);
+			 //glColor3f(red/255.0, green/255.0, blue/255.0);
+		     glVertex2i(j+die.s,i);
+		     //glColor3f(red/255.0, green/255.0, blue/255.0);
+	         glVertex2i(j+die.s,i+die.s);
+			 //glColor3f(red/255.0, green/255.0, blue/255.0);
+             glVertex2i(j,i+die.s);
+
+			glEnd();
+			//glFlush();
 
 
+			/*
+			
+			*/
 
+		   	//avgColour = avgColour /(GLbyte)(die.s * die.s);
+			//std::cout <<"average colour: " << (int)avgColour << std::endl;
+			     
 
+			
+			//avgColour = 0;
+
+		
+		
+		
+            	
+           
 		}
+			
+         
+	//glReadPixels(0, 0, global.w, global.h, GL_RGB, GL_UNSIGNED_BYTE, (GLubyte*)global.data);
+
 
    }
 
-	glDrawPixels(global.w, global.h, GL_RGB, GL_UNSIGNED_BYTE, (GLubyte*)global.data);
-	glFlush();
+
+
+ // glDrawPixels(global.w, global.h, GL_RGB, GL_UNSIGNED_BYTE, (GLubyte*)global.data);
+   glFlush();
+
+  std::cout<< "Done" << std::endl;
 }//display_image()
 
  // Read the screen image back to the data buffer after drawing to it
@@ -252,13 +339,14 @@ int main(int argc, char** argv)
 
 	glutInitWindowSize(global.w, global.h);
 	glutCreateWindow("SIMPLE DISPLAY");
-	glShadeModel(GL_SMOOTH);
 	glutDisplayFunc(display_image);
+	gluOrtho2D(0, global.w, 0, global.h);
+
+	glClearColor(255.0,255.0,255.0,1.0);
 	glutKeyboardFunc(keyboard);
 	glMatrixMode(GL_PROJECTION);
-	glOrtho(0, global.w, 0, global.h, 0, 1);
 
-	init_menu();
+	//init_menu();
 	show_keys();
 
 	glutMainLoop();
