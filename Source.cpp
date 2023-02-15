@@ -12,7 +12,7 @@
 // Source.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
-#define FILENAME "SmileHikaru.jpg"
+#define FILENAME "BongCloudHikaru.jpeg"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -48,6 +48,7 @@ dice die;
 double darkest = 255;
 double brightest = 0;
 double colourInc = 0;
+double range[6] = {0,0,0,0,0,0};
 
 //read image
 pixel* read_img(char* name, int* width, int* height) {
@@ -91,10 +92,17 @@ pixel* read_img(char* name, int* width, int* height) {
 				data[pnum++].b = aPixel.rgbBlue;
 
 				*/
-				
-							}
+
+			}
 		}
 		std::cout << "Darkest: " << darkest << " Brightest: " << brightest << std::endl;
+		colourInc = abs((darkest - brightest))/6;
+
+		for (int i = 0; i < sizeof(range)/sizeof(double); i++) {
+			range[i] = i * colourInc;
+			std::cout << "range " << i << " : " << range[i] << std::endl;
+
+		}
 		FreeImage_Unload(image);
 		return data;
 	}
@@ -136,7 +144,7 @@ void display_image(void)
 	glClear(GL_COLOR_BUFFER_BIT);
 	//glDrawPixels(global.w, global.h, GL_RGB, GL_UNSIGNED_BYTE, (GLubyte*)global.data);
 
-	die.s = 30;
+	die.s = 3;
 	die.w = global.w / die.s;
 	die.h = global.h / die.s;
 
@@ -194,7 +202,6 @@ void display_image(void)
 			}
 			avgColour /= (double)(die.s * die.s);
 
-			std::cout << "average colour: " << (double)avgColour << std::endl;
 			glColor3f(avgColour / 255.0, avgColour / 255.0, avgColour / 255.0);
 			drawDice(i, j, avgColour);
 
@@ -212,11 +219,30 @@ void display_image(void)
 }//display_image()
 
 void drawDice(int i, int j, GLubyte colour) {
+	int value = 0;
 
-
-
-	int value = 5;
+	if (colour>=range[0] && colour<range[1]) {
 	
+		value = 6;
+
+	}
+	else if (colour>=range[1] && colour<range[2]) {
+		value = 5;
+
+	}
+	else if(colour>= range[2] && colour <range[3]) {
+		value = 4;
+	}
+	else if (colour>=range[3] && colour <range[4]) {
+		value = 3;
+
+	}
+	else if (colour>=range[4] && colour <range[5]) {
+		value = 2;
+	}
+	else {
+		value = 1;
+	}
 
 	glColor3f(0, 0, 0);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -229,25 +255,25 @@ void drawDice(int i, int j, GLubyte colour) {
 
 	switch (value) {
 	case 1: {
-		drawDiceFace(1,i,j);
+		drawDiceFace(1, i, j);
 		break;
 	}
-   case 2: {
-		drawDiceFace(2,i,j);
+	case 2: {
+		drawDiceFace(2, i, j);
 
 		break;
 	}case 3: {
-		drawDiceFace(1,i,j);
-		drawDiceFace(2,i,j);
+		drawDiceFace(1, i, j);
+		drawDiceFace(2, i, j);
 
 		break;
 	}case 4: {
-      drawDiceFace(3,i,j);
+		drawDiceFace(3, i, j);
 
 		break;
 	}case 5: {
-		drawDiceFace(1,i,j);
-		drawDiceFace(3,i,j);
+		drawDiceFace(1, i, j);
+		drawDiceFace(3, i, j);
 
 		break;
 	}case 6: {
@@ -265,49 +291,49 @@ void drawDiceFace(int number, int i, int j) {
 	switch (number) {
 
 	case 1: {
-		glColor3f(0,0,0);
+		glColor3f(0, 0, 0);
 		glPointSize(scale);
 		glBegin(GL_POINTS);
-			glVertex2i(j+(die.s/2.0),i+(die.s/2.0));
+		glVertex2i(j + (die.s / 2.0), i + (die.s / 2.0));
 		glEnd();
 
 		break;
 	}
 	case 2: {
-	glColor3f(0,0,0);
+		glColor3f(0, 0, 0);
 		glPointSize(scale);
 		glBegin(GL_POINTS);
-			glVertex2i(j+(die.s/4.0),i+((die.s*3)/4.0));
-			glVertex2i(j+((die.s*3)/4.0),i+(die.s/4.0));
+		glVertex2i(j + (die.s / 4.0), i + ((die.s * 3) / 4.0));
+		glVertex2i(j + ((die.s * 3) / 4.0), i + (die.s / 4.0));
 		glEnd();
 
 		break;
 
 	}case 3: {
 
-	glColor3f(0,0,0);
+		glColor3f(0, 0, 0);
 		glPointSize(scale);
 		glBegin(GL_POINTS);
-			glVertex2i(j+(die.s/4.0),i+(die.s/4.0));
-			glVertex2i(j+(die.s/4.0),i+((die.s*3)/4.0));
-			glVertex2i(j+((die.s*3)/4.0),i+(die.s/4.0));
-			glVertex2i(j+((die.s*3)/4.0),i+((die.s*3)/4.0));
+		glVertex2i(j + (die.s / 4.0), i + (die.s / 4.0));
+		glVertex2i(j + (die.s / 4.0), i + ((die.s * 3) / 4.0));
+		glVertex2i(j + ((die.s * 3) / 4.0), i + (die.s / 4.0));
+		glVertex2i(j + ((die.s * 3) / 4.0), i + ((die.s * 3) / 4.0));
 
-	glEnd();
+		glEnd();
 
 		break;
 
 	}case 4: {
-		glColor3f(0,0,0);
+		glColor3f(0, 0, 0);
 		glPointSize(scale);
 		glBegin(GL_POINTS);
 
-			glVertex2i(j+(die.s/4.0),i+(die.s/4.0));
-			glVertex2i(j+(die.s/4.0),i+((die.s*3)/4.0));
-			glVertex2i(j+((die.s*3)/4.0),i+(die.s/4.0));
-			glVertex2i(j+((die.s*3)/4.0),i+((die.s*3)/4.0));
-			glVertex2i(j+(die.s/4.0),i+(die.s/2.0));
-			glVertex2i(j+((die.s*3)/4.0),i+(die.s/2.0));
+		glVertex2i(j + (die.s / 4.0), i + (die.s / 4.0));
+		glVertex2i(j + (die.s / 4.0), i + ((die.s * 3) / 4.0));
+		glVertex2i(j + ((die.s * 3) / 4.0), i + (die.s / 4.0));
+		glVertex2i(j + ((die.s * 3) / 4.0), i + ((die.s * 3) / 4.0));
+		glVertex2i(j + (die.s / 4.0), i + (die.s / 2.0));
+		glVertex2i(j + ((die.s * 3) / 4.0), i + (die.s / 2.0));
 
 		glEnd();
 
