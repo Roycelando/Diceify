@@ -12,7 +12,7 @@
 // Source.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
-#define FILENAME "SmileHikaru.jpg"
+#define FILENAME "BongCloudHikaru.jpeg"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -20,6 +20,7 @@
 #include <freeglut.h>
 #include <FreeImage.h>
 #include <iostream>
+void drawDiceFace(int value, int i, int j);
 void drawDice(int i, int j, GLubyte colour);
 
 //the pixel structure
@@ -43,7 +44,12 @@ glob global;
 const float PI = 3.14159265358979323846;
 
 enum { MENU_FILTER, MENU_SAVE, MENU_TRIANGLE, MENU_QUIT };
-	dice die; 
+dice die;
+double darkest = 255;
+double brightest = 0;
+double colourInc = 0;
+double range[6] = {0,0,0,0,0,0};
+
 //read image
 pixel* read_img(char* name, int* width, int* height) {
 	FIBITMAP* image;
@@ -55,21 +61,47 @@ pixel* read_img(char* name, int* width, int* height) {
 		*width = FreeImage_GetWidth(image);
 		*height = FreeImage_GetHeight(image);
 
-		std::cout << "width: " << *width << " height: " << *height << " BPP: "<< FreeImage_GetBPP(image)<< std::endl;
+		std::cout << "width: " << *width << " height: " << *height << " BPP: " << FreeImage_GetBPP(image) << std::endl;
 		data = (pixel*)malloc((*height) * (*width) * sizeof(pixel*));
 		if (data == NULL) {
-			return NULL; 
+			return NULL;
 		}
 		pnum = 0;
 		for (i = 0; i < (*height); i++) {
 			for (j = 0; j < (*width); j++) {
 				FreeImage_GetPixelColor(image, j, i, &aPixel);
-				GLubyte avg = ((aPixel.rgbRed) + (aPixel.rgbGreen) + (aPixel.rgbRed))/ (GLubyte)3.0;
+				GLubyte avg = ((aPixel.rgbRed) + (aPixel.rgbGreen) + (aPixel.rgbRed)) / (GLubyte)3.0;
+
+				if (avg > brightest) {
+					brightest = avg;
+				}
+
+				if (avg < darkest) {
+					darkest = avg;
+				}
+
 
 				data[pnum].r = avg;
 				data[pnum].g = avg;
 				data[pnum++].b = avg;
+
+
+				/*
+				data[pnum].r = aPixel.rgbRed;
+				data[pnum].g = aPixel.rgbGreen;
+				data[pnum++].b = aPixel.rgbBlue;
+
+				*/
+
 			}
+		}
+		std::cout << "Darkest: " << darkest << " Brightest: " << brightest << std::endl;
+		colourInc = abs((darkest - brightest))/6;
+
+		for (int i = 0; i < sizeof(range)/sizeof(double); i++) {
+			range[i] = i * colourInc;
+			std::cout << "range " << i << " : " << range[i] << std::endl;
+
 		}
 		FreeImage_Unload(image);
 		return data;
@@ -109,132 +141,211 @@ void write_img(char* name, pixel* data, int width, int height) {
 void display_image(void)
 
 {
-  	glClear(GL_COLOR_BUFFER_BIT);
-    //glDrawPixels(global.w, global.h, GL_RGB, GL_UNSIGNED_BYTE, (GLubyte*)global.data);
+	glClear(GL_COLOR_BUFFER_BIT);
+	//glDrawPixels(global.w, global.h, GL_RGB, GL_UNSIGNED_BYTE, (GLubyte*)global.data);
 
-	die.s = 20;
+	die.s = 3;
 	die.w = global.w / die.s;
 	die.h = global.h / die.s;
 
-	global.w = global.w - (global.w%die.s);
-	global.h = global.h - (global.h%die.s);
+	global.w = global.w - (global.w % die.s);
+	global.h = global.h - (global.h % die.s);
 
 
 	std::cout << "dice side: " << die.s << " dice per row: " << die.h << " diece per row: " << die.w << std::endl;
 
 
-	GLubyte avgColour =0;
+	double avgColour = 0;
 
-/*
-	pixel test;
-	test.r = 0;
-	test.g = 255;
-	test.b = 0;
+	/*
+		pixel test;
+		test.r = 0;
+		test.g = 255;
+		test.b = 0;
 
-*/
-
-
+	*/
 
 
 
-	for (int i = 0; i <= global.h-die.s; i+=die.s) {
-		for (int j = 0; j <= global.w-die.s; j+=die.s) {
+
+
+	for (int i = 0; i <= global.h - die.s; i += die.s) {
+		for (int j = 0; j <= global.w - die.s; j += die.s) {
 
 			int red = rand() % 255;
 			int green = rand() % 255;
 			int blue = rand() % 255;
 			/* testing to see if  I can colour the verticies of each quadrant
-                      global.data[((i * global.w)) + j].r =(GLubyte)255;
-	                  global.data[((i * global.w)) + j].g =(GLubyte)0;
-                      global.data[((i * global.w)) + j].b =(GLubyte)0;
+					  global.data[((i * global.w)) + j].r =(GLubyte)255;
+					  global.data[((i * global.w)) + j].g =(GLubyte)0;
+					  global.data[((i * global.w)) + j].b =(GLubyte)0;
 
 			*/
 
-                     			
+
 			for (int y = 0; y <= die.s; y++) {
 				for (int x = 0; x <= die.s; x++) {
 
-                    avgColour += global.data[(((i + y) * global.w)) + (j + x)].r;
+					avgColour += global.data[(((i + y) * global.w)) + (j + x)].r;
 
 					/* testing to see if I can colour each qudarant
 					global.data[(((i + y) * global.w)) + (j + x)].r = test.r;
 					global.data[(((i + y) * global.w)) + (j + x)].g = test.g;
 					global.data[(((i + y) * global.w)) + (j + x)].b = test.b;
-	
+
 					*/
-				
+
 
 
 				}
 
 			}
-			avgColour / (die.s * die.s);
+			avgColour /= (double)(die.s * die.s);
 
-			std::cout << "average colour: " << (double)avgColour << std::endl;
-			glColor3f(avgColour/255.0, avgColour/255.0, avgColour/255.0);
-			drawDice(i,j,avgColour);
+			glColor3f(avgColour / 255.0, avgColour / 255.0, avgColour / 255.0);
+			drawDice(i, j, avgColour);
 
-		   				     
 
-			
+
+
 			avgColour = 0;
 		}
 
-   }
+	}
 
 
-    std::cout<< "Done" << std::endl;
+	std::cout << "Done" << std::endl;
 	glFlush();
 }//display_image()
 
-void drawDice(int i, int j, GLubyte colour ) {
-	int value =1;
-	int radius = (die.s / 2.0) * 0.30;
-	glColor3f(0,0,0);
+void drawDice(int i, int j, GLubyte colour) {
+	int value = 0;
+
+	if (colour>=range[0] && colour<range[1]) {
+	
+		value = 6;
+
+	}
+	else if (colour>=range[1] && colour<range[2]) {
+		value = 5;
+
+	}
+	else if(colour>= range[2] && colour <range[3]) {
+		value = 4;
+	}
+	else if (colour>=range[3] && colour <range[4]) {
+		value = 3;
+
+	}
+	else if (colour>=range[4] && colour <range[5]) {
+		value = 2;
+	}
+	else {
+		value = 1;
+	}
+
+	glColor3f(0, 0, 0);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
- 	 glBegin(GL_POLYGON);
-		     glVertex2i(j,i);
-		     glVertex2i(j+die.s,i);
-	         glVertex2i(j+die.s,i+die.s);
-             glVertex2i(j,i+die.s);
-		glEnd();
+	glBegin(GL_POLYGON);
+	glVertex2i(j, i);
+	glVertex2i(j + die.s, i);
+	glVertex2i(j + die.s, i + die.s);
+	glVertex2i(j, i + die.s);
+	glEnd();
 
 	switch (value) {
-		default: {
-		glColor3f(0,0,0);
-        glBegin(GL_POLYGON);
-				  for (int i = 0; i < 360; i++) {
-					  double theta = i * (PI / 180); // calculating the next angle
-					  glVertex2f(radius * cos(theta) + (die.s/2.0), radius * sin(theta) + (die.s/2.0)); // gets then points of the circle
-				  }
+	case 1: {
+		drawDiceFace(1, i, j);
+		break;
+	}
+	case 2: {
+		drawDiceFace(2, i, j);
+
+		break;
+	}case 3: {
+		drawDiceFace(1, i, j);
+		drawDiceFace(2, i, j);
+
+		break;
+	}case 4: {
+		drawDiceFace(3, i, j);
+
+		break;
+	}case 5: {
+		drawDiceFace(1, i, j);
+		drawDiceFace(3, i, j);
+
+		break;
+	}case 6: {
+		drawDiceFace(4, i, j);
+		break;
+	}
+	}
+
+
+
+}
+
+void drawDiceFace(int number, int i, int j) {
+	double scale = die.s * 0.15;
+	switch (number) {
+
+	case 1: {
+		glColor3f(0, 0, 0);
+		glPointSize(scale);
+		glBegin(GL_POINTS);
+		glVertex2i(j + (die.s / 2.0), i + (die.s / 2.0));
 		glEnd();
-			break;
 
-		}
-		case 2: {
+		break;
+	}
+	case 2: {
+		glColor3f(0, 0, 0);
+		glPointSize(scale);
+		glBegin(GL_POINTS);
+		glVertex2i(j + (die.s / 4.0), i + ((die.s * 3) / 4.0));
+		glVertex2i(j + ((die.s * 3) / 4.0), i + (die.s / 4.0));
+		glEnd();
 
-			break;
+		break;
 
-		}case 3: {
+	}case 3: {
 
-			break;
+		glColor3f(0, 0, 0);
+		glPointSize(scale);
+		glBegin(GL_POINTS);
+		glVertex2i(j + (die.s / 4.0), i + (die.s / 4.0));
+		glVertex2i(j + (die.s / 4.0), i + ((die.s * 3) / 4.0));
+		glVertex2i(j + ((die.s * 3) / 4.0), i + (die.s / 4.0));
+		glVertex2i(j + ((die.s * 3) / 4.0), i + ((die.s * 3) / 4.0));
 
-		}case 4: {
-			break;
+		glEnd();
 
-		}case 5: {
-			break;
+		break;
 
-		}case 6: {
+	}case 4: {
+		glColor3f(0, 0, 0);
+		glPointSize(scale);
+		glBegin(GL_POINTS);
 
-			break;
-		}
-		   
+		glVertex2i(j + (die.s / 4.0), i + (die.s / 4.0));
+		glVertex2i(j + (die.s / 4.0), i + ((die.s * 3) / 4.0));
+		glVertex2i(j + ((die.s * 3) / 4.0), i + (die.s / 4.0));
+		glVertex2i(j + ((die.s * 3) / 4.0), i + ((die.s * 3) / 4.0));
+		glVertex2i(j + (die.s / 4.0), i + (die.s / 2.0));
+		glVertex2i(j + ((die.s * 3) / 4.0), i + (die.s / 2.0));
+
+		glEnd();
+
+		break;
+
+	}
+
 	}
 
 }
 
- // Read the screen image back to the data buffer after drawing to it
+// Read the screen image back to the data buffer after drawing to it
 void draw_triangle(void)
 {
 	glDrawPixels(global.w, global.h, GL_RGB, GL_UNSIGNED_BYTE, (GLubyte*)global.data);
