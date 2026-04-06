@@ -24,7 +24,7 @@ Diceify takes an input image and converts it into a mosaic where each pixel regi
 
 **Output — many dice**
 
-![Output many dice](bongclog_hikaru_many_dice.png)
+![Output many dice](bongcloug_hikaru_many_dice.png)
 
 ---
 
