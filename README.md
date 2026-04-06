@@ -12,13 +12,19 @@ Diceify takes an input image and converts it into a mosaic where each pixel regi
 
 ---
 
-## Examples
+## Example
 
-| Input | Diceified |
-|---|---|
-| ![Smile](SmileHikaru.jpg) | ![Bong Cloud](BongCloudHikaru.jpeg) |
+**Input**
 
-![Frown](FrownHikaru.jpeg)
+![Input](BongCloudHikaru.jpeg)
+
+**Output — regular dice**
+
+![Output](bongcloud_dice_hikaru.png)
+
+**Output — many dice**
+
+![Output many dice](bongclog_hikaru_many_dice.png)
 
 ---
 
@@ -33,9 +39,7 @@ Diceify takes an input image and converts it into a mosaic where each pixel regi
 ```bash
 git clone https://github.com/Roycelando/Diceify
 cd Diceify
-# Compile
 g++ Source.cpp -o diceify
-# Run
 ./diceify <input_image>
 ```
 
@@ -55,10 +59,10 @@ g++ Source.cpp -o diceify
 
 ```
 Diceify/
-├── Source.cpp           # Main C++ source
-├── SmileHikaru.jpg      # Sample input
-├── BongCloudHikaru.jpeg # Sample output
-├── FrownHikaru.jpeg     # Sample output
+├── Source.cpp                    # Main C++ source
+├── BongCloudHikaru.jpeg          # Sample input
+├── bongcloud_dice_hikaru.png     # Sample output
+├── bongclog_hikaru_many_dice.png # Sample output (many dice)
 └── .gitignore
 ```
 
